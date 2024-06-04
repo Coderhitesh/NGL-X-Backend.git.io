@@ -9,7 +9,8 @@ const { createBanner, createCategory, makeTag, getAllBanners, deleteBanner, getA
 const { ShipRocketLogin, MakeOrderReadyToShip } = require('../controllers/Shiprocket')
 const { RedirectCategoryMake, GetAllRedirectCat, DeleteRedirectCategory } = require('../controllers/Redirect')
 const { createVoucher, getAllVouchers, activateVoucher, deactivateVoucher, deleteVoucher, applyVoucher } = require('../controllers/Voucher')
-const { createSalesBanner, getAllSalesBanners, deleteSalesBanner } = require('../controllers/SalesBanner')
+const { createSalesBanner, getAllSalesBanners, deleteSalesBanner } = require('../controllers/SalesBanner');
+const { getContacts, createContact, deleteMail } = require('../controllers/ContactController');
 
 const storage = multer.memoryStorage()
 const multerUploads = multer({ storage }).array('images')
@@ -75,5 +76,11 @@ routes.delete('/vouchers/deleteVoucher/:id',deleteVoucher)
 routes.post('/create-sales-banners', multerUploads, createSalesBanner)
 routes.get('/get-sales-Banners', getAllSalesBanners)
 routes.delete('/delete-sales-Banners/:id', deleteSalesBanner)
+
+// ======================Contact=======================//
+routes.get( '/getcontact', getContacts);
+routes.post( '/createcontact', createContact);
+routes.delete('/delete-mail/:id', deleteMail)
+
 
 module.exports = routes
