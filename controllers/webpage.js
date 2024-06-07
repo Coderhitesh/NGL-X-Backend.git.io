@@ -7,6 +7,7 @@ const fs = require('fs')
 
 exports.createBanner = async (req, res) => {
     try {
+        console.log(req.files)
         const { title, active } = req.body;
         if (!title || active === undefined) { // Checking if active is defined
             return res.status(400).json({
@@ -14,7 +15,7 @@ exports.createBanner = async (req, res) => {
                 msg: "Please provide all required fields"
             });
         }
-     
+
         const file = req.files[0];
         const tempFilePath = path.join(__dirname, `temp_${file.originalname}`);
 
@@ -71,7 +72,8 @@ exports.updateBanner = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, active } = req.body;
-        
+        console.log("body",req.body)
+
         const updatedBanner = await banner.findByIdAndUpdate(id, { title, active }, { new: true });
 
         if (!updatedBanner) {
@@ -85,6 +87,7 @@ exports.updateBanner = async (req, res) => {
             success: true,
             data: updatedBanner
         });
+        // console.log("update",updatedBanner)
     } catch (error) {
         //console.log(error);
         return res.status(500).json({
@@ -122,31 +125,30 @@ exports.deleteBanner = async (req, res) => {
 
 exports.createCategory = async (req, res) => {
     try {
-        const { MainCategory,title } = req.body;
+        console.log("i am hit")
+        const { MainCategory } = req.body;
         //console.log(req.body)
-        if (!title) { // Checking if active is defined
+        if (!MainCategory) { // Checking if active is defined
             return res.status(400).json({
                 success: false,
                 msg: "Please provide all required fields"
             });
         }
-     
+        console.log(req.files)
         const file = req.files[0];
         const tempFilePath = path.join(__dirname, `temp_${file.originalname}`);
 
-        // Writing the file to a temporary location
-        await fs.promises.writeFile(tempFilePath, file.buffer); // Using fs.promises to avoid the need for a callback
+        // // Writing the file to a temporary location
+         await fs.promises.writeFile(tempFilePath, file.buffer); // Using fs.promises to avoid the need for a callback
 
-        // Uploading the banner image to Cloudinary
-        const forBannerImage = await cloudinary.uploader.upload(tempFilePath);
-        //console.log(forBannerImage);
+        // // Uploading the banner image to Cloudinary
+         const forBannerImage = await cloudinary.uploader.upload(tempFilePath);
+        console.log(forBannerImage);
 
-        // Creating the banner object
+        // // Creating the banner object
         const newCategory = new Category({
-            title: title,
-            MainCategory:MainCategory,
-            CatImg: forBannerImage.secure_url // Assuming Cloudinary returns secure_url
-            // Add other banner details here if applicable
+            MainCategory: MainCategory,
+            CatImg: forBannerImage.secure_url
         });
 
         // Saving the banner to the database
@@ -161,7 +163,7 @@ exports.createCategory = async (req, res) => {
             data: newCategory
         });
     } catch (error) {
-        //console.log(error);
+        console.log(error);
         return res.status(500).json({
             success: false,
             msg: "Internal Server Error"
@@ -230,17 +232,19 @@ exports.getTitleByMainCategory = async (req, res) => {
 exports.updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title } = req.body;
-        
-        const updatedCategory = await Category.findByIdAndUpdate(id, { title }, { new: true });
+        // console.log(req.params)
+        // console.log(req.body)
+        // const { title } = req.body;
+        // console.log(id)
 
+        const updatedCategory = await Category.findByIdAndUpdate(id, { title }, { new: true });
+        console.log(req.body)
         if (!updatedCategory) {
             return res.status(404).json({
                 success: false,
                 msg: "Category not found"
             });
         }
-
         return res.status(200).json({
             success: true,
             data: updatedCategory
@@ -253,6 +257,8 @@ exports.updateCategory = async (req, res) => {
         });
     }
 };
+
+
 exports.deleteCategory = async (req, res) => {
     try {
         const { id } = req.params;

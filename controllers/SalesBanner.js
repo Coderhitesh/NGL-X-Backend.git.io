@@ -7,6 +7,7 @@ const fs = require('fs')
 exports.createSalesBanner = async (req, res) => {
     try {
         const {  active,BtnTitle } = req.body;
+        console.log('body',req.body)
         if ( active === undefined) { // Checking if active is defined
             return res.status(400).json({
                 success: false,
@@ -94,3 +95,28 @@ exports.deleteSalesBanner = async (req, res) => {
         });
     }
 };
+
+
+exports.updateSaleBanner = async (req,res) => {
+    try {
+        const {id} = req.params;
+        // const {}
+        const updatedSaleBanner = await SalesBanner.findByIdAndUpdate(id, {new:true});
+        if(!updatedSaleBanner) {
+            return res.status(404).json({
+                success : false,
+                msg : "Sale Banner Not Found"
+            })
+        }
+        return res.status(200).json({
+            success : true,
+            data : updatedSaleBanner
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            success : false,
+            msg : "Internal Server Error"
+        })
+    }
+}

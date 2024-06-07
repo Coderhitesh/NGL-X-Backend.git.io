@@ -1,8 +1,10 @@
 const Product = require("../models/ProductModel");
 const cloudinary = require("cloudinary").v2;
-const fs = require('fs').promises;
+const multer = require('multer');
 const path = require('path');
-
+const fs = require('fs/promises');
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage }).array('images', 5);
 // Config Of Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
@@ -12,80 +14,87 @@ cloudinary.config({
 
 // Create Product 
 exports.createProducts = async (req, res) => {
-    try {
-        const files = req.files;
-
-        if (!files || files.length === 0) {
+    upload(req, res, async (err) => {
+        if (err) {
             return res.status(400).json({
                 success: false,
-                error: "No files uploaded"
+                error: "File upload failed",
+                details: err.message
             });
         }
 
-        const {
-            productName, 
-            afterdiscount, mainPrice, description,
-            availability, categories, tags
-        } = req.body;
+        try {
+            const files = req.files;
+            // console.log(files)
+            if (!files || files.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: "No files uploaded"
+                });
+            }
 
-        const emptyFields = [];
+            const { productName, afterdiscount, mainPrice, description, availability, categories, tags, stockQuantity } = req.body;
 
-        if (!productName) emptyFields.push('productName');
-        if (!description) emptyFields.push('description');
-        if (availability === undefined) emptyFields.push('availability');
-        if (!categories) emptyFields.push('categories');
+            const emptyFields = [];
+            if (!productName) emptyFields.push('productName');
+            if (!description) emptyFields.push('description');
+            // if (availability === undefined) emptyFields.push('availability');
+            if (!categories) emptyFields.push('categories');
+            if (!stockQuantity) emptyFields.push('stockQuantity');
 
-        if (emptyFields.length > 0) {
-            return res.status(400).json({
+            if (emptyFields.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Please provide all required fields",
+                    missingFields: emptyFields
+                });
+            }
+
+            const uploadedImages = [];
+            for (let index = 0; index < files.length; index++) {
+                const file = files[index];
+                const tempFilePath = path.join(__dirname, `temp_${file.originalname}`);
+                await fs.writeFile(tempFilePath, file.buffer);
+
+                const uploadResult = await cloudinary.uploader.upload(tempFilePath, {
+                    folder: 'Cosmetics',
+                    public_id: file.originalname
+                });
+
+                uploadedImages.push(uploadResult.secure_url);
+                await fs.unlink(tempFilePath);
+            }
+
+            const newProduct = new Product({
+                img: uploadedImages[0],
+                productName,
+                secondImage: uploadedImages[1] || uploadedImages[0],
+                thirdImage: uploadedImages[2] || uploadedImages[0],
+                fourthImage: uploadedImages[3] || uploadedImages[0],
+                fifthImage: uploadedImages[4] || uploadedImages[0],
+                afterdiscount,
+                mainPrice,
+                description,
+                availability,
+                categories,
+                tags,
+                stockQuantity
+            });
+
+            await newProduct.save();
+            res.status(200).json({
+                success: true,
+                msg: "Product created successfully",
+                data: newProduct
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({
                 success: false,
-                error: "Please provide all required fields",
-                missingFields: emptyFields
+                error: "Internal server error"
             });
         }
-
-        const uploadedImages = [];
-        for (let index = 0; index < files.length; index++) {
-            const file = files[index];
-            const tempFilePath = path.join(__dirname, `temp_${file.originalname}`);
-            await fs.writeFile(tempFilePath, file.buffer);
-
-            const uploadResult = await cloudinary.uploader.upload(tempFilePath, {
-                folder: 'Cosmetics',
-                public_id: file.originalname
-            });
-
-            uploadedImages.push(uploadResult.secure_url);
-            await fs.unlink(tempFilePath);
-        }
-
-        const newProduct = new Product({
-            img: uploadedImages[0],
-            productName,
-            secondImage: uploadedImages[1] || uploadedImages[0],
-            thirdImage: uploadedImages[2] || uploadedImages[0],
-            fourthImage: uploadedImages[3] || uploadedImages[0],
-            fifthImage: uploadedImages[4] || uploadedImages[0],
-            afterdiscount,
-            mainPrice,
-            description,
-            availability,
-            categories,
-            tags
-        });
-
-        await newProduct.save();
-        res.status(200).json({
-            success: true,
-            msg: "Product created successfully",
-            data: newProduct
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error"
-        });
-    }
+    });
 };
 
 // Get All Products
@@ -180,9 +189,24 @@ exports.filterProductsByTags = async (req, res) => {
 };
 
 // Update Product
+exports.makeUpdate = async (req,res)=>{
+    try {
+        console.log(req.body)
+        res.status(201).json({
+            success: true,
+            data: req.body
+        });
+    } catch (error) {
+        res.status(501).json({
+            success: false,
+            error: "Product not found"
+        });
+    }
+}
 exports.updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(req.body)
         const updateFields = {};
 
         const {
@@ -211,6 +235,7 @@ exports.updateProduct = async (req, res) => {
                 error: "Product not found"
             });
         }
+
 
         res.status(200).json({
             success: true,

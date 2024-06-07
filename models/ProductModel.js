@@ -40,6 +40,12 @@ const productSchema = new mongoose.Schema({
     tags: {
         type: String
     },
+    stockQuantity : {
+        type : Number
+    },
+    Isavailable : {
+        type : Boolean
+    }
 }, { timestamps: true });
 
 const Product = mongoose.model('Product', productSchema);

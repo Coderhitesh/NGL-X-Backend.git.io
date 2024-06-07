@@ -5,11 +5,11 @@ const multer = require('multer')
 const { register, LoginUser, Logout, getAllUsers, getTokenFromCookies } = require('../controllers/Usercontrollers')
 const { isAuthenticatedUser } = require('../middlewares/auth')
 const { CreateOrder, checkStatus, GetMyOrders, getAllOrder, getSingleOrder, newPayment } = require('../controllers/OrderController')
-const { createBanner, createCategory, makeTag, getAllBanners, deleteBanner, getAllCategories, updateCategory, deleteCategory, getAllTags, updateTag, deleteTag, getOnlyMainCategory, getTitleByMainCategory } = require('../controllers/webpage')
+const { createBanner, createCategory, makeTag, getAllBanners, deleteBanner, getAllCategories, updateCategory, deleteCategory, getAllTags, updateTag, deleteTag, getOnlyMainCategory, getTitleByMainCategory, updateBanner } = require('../controllers/webpage')
 const { ShipRocketLogin, MakeOrderReadyToShip } = require('../controllers/Shiprocket')
 const { RedirectCategoryMake, GetAllRedirectCat, DeleteRedirectCategory } = require('../controllers/Redirect')
 const { createVoucher, getAllVouchers, activateVoucher, deactivateVoucher, deleteVoucher, applyVoucher } = require('../controllers/Voucher')
-const { createSalesBanner, getAllSalesBanners, deleteSalesBanner } = require('../controllers/SalesBanner');
+const { createSalesBanner, getAllSalesBanners, deleteSalesBanner, updateSaleBanner } = require('../controllers/SalesBanner');
 const { getContacts, createContact, deleteMail } = require('../controllers/ContactController');
 
 const storage = multer.memoryStorage()
@@ -25,7 +25,7 @@ routes.get('/All-users', getAllUsers)
 routes.get('/Token', isAuthenticatedUser, getTokenFromCookies)
 
 //====================PRODUCT ROUTES=========================//
-routes.post('/createProduct', multerUploads , productController.createProducts);
+routes.post('/createProduct' , productController.createProducts);
 routes.get('/getAllProducts', productController.getAllProducts);
 routes.get('/getProductByName/:productName?', productController.getProductByName);
 routes.get('/getProductById/:id', productController.getProductByName);
@@ -37,6 +37,7 @@ routes.get('/getProductsByCategory/:category', productController.getProductsByCa
 routes.post('/create-banners', multerUploads, createBanner)
 routes.get('/get-Banners', getAllBanners)
 routes.delete('/delete-Banners/:id', deleteBanner)
+routes.delete('/update-Banners/:id', updateBanner)
 routes.post('/create-category', multerUploads, createCategory)
 routes.get('/get-category', getAllCategories)
 routes.post('/update-category/:id', updateCategory)
@@ -76,6 +77,7 @@ routes.delete('/vouchers/deleteVoucher/:id',deleteVoucher)
 routes.post('/create-sales-banners', multerUploads, createSalesBanner)
 routes.get('/get-sales-Banners', getAllSalesBanners)
 routes.delete('/delete-sales-Banners/:id', deleteSalesBanner)
+routes.post('/update-sales-Banners/:id', updateSaleBanner)
 
 // ======================Contact=======================//
 routes.get( '/getcontact', getContacts);

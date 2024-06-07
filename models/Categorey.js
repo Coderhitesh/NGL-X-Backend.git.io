@@ -4,9 +4,7 @@ const CategoreySchema = mongoose.Schema({
     MainCategory:{
         type:String
     },
-    title:{
-        type:String
-    },
+  
     CatImg:{
         type:String
     }
