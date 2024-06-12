@@ -2,18 +2,11 @@ const mongoose = require('mongoose')
 const MiniProduct = new mongoose.Schema({
     image:{
         type: String
-
     },
     Productname: {
         type: String
     },
-    Size: {
-        type: String
-    },
     price: {
-        type: String
-    },
-    Colour: {
         type: String
     },
     Quantity: {
@@ -22,10 +15,6 @@ const MiniProduct = new mongoose.Schema({
     Categories: {
         type: String
     },
-    Sku:{
-        type: String
-
-    }
 
 })
 const OrderModel = new mongoose.Schema({
@@ -39,9 +28,6 @@ const OrderModel = new mongoose.Schema({
             type: String
         },
         Email: {
-            type: String
-        },
-        PhoneNumber:{
             type: String
         },
         userid: {

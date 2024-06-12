@@ -17,6 +17,19 @@ const userSchema = new mongoose.Schema({
     emailVerified: {
         type: Boolean,
         default: false
+    },
+    otpForVerification : {
+        type : Number,
+    },
+    ForgetPasswordOTP : {
+        type : String
+    },
+    OtpGeneratedAt : {
+        type : Date
+    },
+    Role : {
+        type : String,
+        default : 'user'
     }
 }, { timestamps: true });
 

@@ -2,7 +2,7 @@ const express = require('express')
 const productController = require('../controllers/ProductController');
 const routes = express.Router()
 const multer = require('multer')
-const { register, LoginUser, Logout, getAllUsers, getTokenFromCookies } = require('../controllers/Usercontrollers')
+const { register, LoginUser, Logout, getAllUsers, getTokenFromCookies, verifyOtpForSignIn, ResendSignOtp, PasswordChangeRequest, VerifyOtp } = require('../controllers/Usercontrollers')
 const { isAuthenticatedUser } = require('../middlewares/auth')
 const { CreateOrder, checkStatus, GetMyOrders, getAllOrder, getSingleOrder, newPayment } = require('../controllers/OrderController')
 const { createBanner, createCategory, makeTag, getAllBanners, deleteBanner, getAllCategories, updateCategory, deleteCategory, getAllTags, updateTag, deleteTag, getOnlyMainCategory, getTitleByMainCategory, updateBanner } = require('../controllers/webpage')
@@ -19,6 +19,13 @@ const SingleUpload = multer({ storage }).single('image')
 
 //====================USER ROUTES=========================//
 routes.post('/register', register)
+routes.post('/Verify-sign-Otp', verifyOtpForSignIn)
+routes.post('/resend-sign-Otp', ResendSignOtp)
+routes.post('/Password-change-request', PasswordChangeRequest)
+
+routes.post('/Verify-Otp/:email/:newPassword', VerifyOtp)
+
+
 routes.post('/login', LoginUser)
 routes.get('/Logout', isAuthenticatedUser, Logout)
 routes.get('/All-users', getAllUsers)
